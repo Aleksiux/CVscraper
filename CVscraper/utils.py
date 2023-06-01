@@ -134,12 +134,23 @@ def cv_online(city='kaunas', keyword_search=''):
     full_card_ul_item = soup.find('ul', {'data-gtm-id': 'search-results'})
     full_card = full_card_ul_item.find_all('li')
     for card in full_card:
-        logo = f"https://cvonline.lt{card.find('div', class_='jsx-1401030249 vacancy-item__logo hide-mobile').find('img').get('src')}"
-        employer = card.find('div',class_='jsx-1401030249 vacancy-item__body').find('a').text
+        try:
+            logo = f"https://cvonline.lt{card.find('div', class_='jsx-1401030249 vacancy-item__logo hide-mobile').find('img').get('src')}"
+        except AttributeError:
+            logo = 'No logo declared'
+        try:
+            employer = card.find('div',class_='jsx-1401030249 vacancy-item__body').find('a').text
+        except AttributeError:
+            employer = 'No employer declared'
         position = card.find('div', class_='jsx-1401030249').find('span').text
-        salary = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary').find('span', class_='jsx-1401030249 vacancy-item__salary-label').text.replace('€', '')
+        try:
+            salary = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary').find(
+            'span', class_='jsx-1401030249 vacancy-item__salary-label').text.replace('€', '')
+        except AttributeError:
+            salary = 'No salary declared'
         location = card.find('span', class_='jsx-1401030249 vacancy-item__locations').text.replace('—', '')
-        how_old_ad = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary').span.text.replace('Baigiasi', ' | Baigiasi')
+        how_old_ad = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary'
+                               ).span.text.replace('Baigiasi', ' | Baigiasi')
         ad_link = f"https://cvonline.lt{card.find('div', class_='jsx-1401030249').find('a').get('href')}"
         card_items = {
             'logo': logo,
