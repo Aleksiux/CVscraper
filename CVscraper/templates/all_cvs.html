@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1> CV page </h1>
+
+
+<div class="card">
+  <p class="p_counter">At the moment there is {{count}} advertisements</p>
+<table class="table table-hover">
+  <tr>
+    <th>Logo</th>
+    <th>Position</th>
+    <th>Employer</th>
+    <th>Salary</th>
+    <th>Salary taxes</th>
+    <th>City</th>
+    <th>How old ad</th>
+  </tr>
+  {% for data in cvbankas %}
+  <tr onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">
+    <td><img src="{{data.logo}}"></td>
+    <td>{{data.position}}</td>
+    <td>{{data.employer}}</td>
+    <td>{{data.salary}}</td>
+    <td>{{data.salary_taxes}}</td>
+    <td>{{data.location}}</td>
+    <td>{{data.how_old_ad}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% if request.user.is_superuser %}
+  <form method="POST" action="{% url 'scrape_data' %}">
+    {% csrf_token %}
+    <button type="submit">Scrape for new data</button>
+  </form>
+{% endif %}
+
+</div>
+{% endblock %}

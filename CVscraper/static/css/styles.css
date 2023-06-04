@@ -1,0 +1,21 @@
+.card {
+border: 0px;
+display: flex;
+justify-content: center;
+}
+
+.card img {
+    width: 70px;
+    height: 70px;
+
+}
+
+.card table {
+    margin: 0 auto;
+    width: 50%;
+    margin-right: 15vw;
+}
+.p_counter{
+    text-align: center;
+    margin-left: -35vh;
+}
