@@ -55,7 +55,6 @@ def cvbankas_lt(city, keyword_search=''):
         list_of_ads.append(card_items)
     return list_of_ads
 
-
 def cv_lt(city='kaunas', keyword_search=''):
     city = {
         'kaunas': 1020,

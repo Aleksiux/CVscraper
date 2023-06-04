@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.admin import User
+
+
 class CvForm(models.Model):
     cv_id = models.AutoField(primary_key=True)
     logo_url = models.CharField(max_length=3000)
@@ -11,9 +13,9 @@ class CvForm(models.Model):
     how_old_ad = models.CharField(max_length=50)
     ad_link = models.CharField(max_length=3000)
 
-
     def __str__(self):
         return f"Position:{self.position} | employer: {self.employer}"
+
 
 class Profile(models.Model):
     profile_id = models.AutoField(primary_key=True)
