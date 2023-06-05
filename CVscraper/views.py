@@ -2,6 +2,7 @@ from .utils import cvbankas_lt
 from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from .forms import CvSearchForm
 
 
 def index(request):
@@ -11,9 +12,20 @@ def index(request):
 
 
 def all_cvs(request):
+    form = CvSearchForm(request.POST or None)
+    selected_locations = None
+
+    if request.method == 'POST' and form.is_valid():
+        selected_locations = form.cleaned_data['location_select']
+        print(selected_locations)
+        search_query = request.POST.get('search')
+        print(search_query)
+
     context = {
-        'cvbankas': cvbankas_lt('kaunas', 'python'),
-        'count': len(cvbankas_lt('kaunas', 'python'))
+        'form': form,
+        'selected_locations': selected_locations,
+        # 'cvbankas': cvbankas_lt('kaunas', 'python'),
+        # 'count': len(cvbankas_lt('kaunas', 'python'))
     }
     return render(request, "all_cvs.html", context=context)
 

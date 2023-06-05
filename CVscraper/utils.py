@@ -9,7 +9,7 @@ def cvbankas_lt(city, keyword_search=''):
         'klaipeda': 538,
         'alytus': 507,
         'birstonas': 510,
-        'jonava': 520
+        'jonava': 520,
     }
     location = f"&location%5B%5D={location_dict[city]}"
     url = f'https://www.cvbankas.lt/darbo-pasiulymai-programuotojams-it-specialistams?{location}&padalinys%5B%5D=76' \
