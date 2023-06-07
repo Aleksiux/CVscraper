@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 
 
-def cvbankas_lt(city, keyword_search=''):
+def cvbankas_lt(city='', keyword='', work=''):
     location_dict = {
         'kaunas': 530,
         'vilnius': 606,
@@ -11,9 +11,26 @@ def cvbankas_lt(city, keyword_search=''):
         'birstonas': 510,
         'jonava': 520,
     }
-    location = f"&location%5B%5D={location_dict[city]}"
-    url = f'https://www.cvbankas.lt/darbo-pasiulymai-programuotojams-it-specialistams?{location}&padalinys%5B%5D=76' \
-          f'&keyw={keyword_search} '
+    work_area_dict = {
+        'it': 76,
+        'administration': 202,
+        'production': 85,
+        'medicine': 408,
+        'transport_driving': 1047,
+    }
+    location = ''
+    if city != '':
+        location = f"&location%5B%5D={location_dict[city]}"
+
+    work_area = '?padalinys%5B%5D=202&padalinys%5B%5D=85&padalinys%5B%5D=76&padalinys%5B%5D=408&padalinys%5B%5D=1047'
+    if work != '':
+        work_area = f"?padalinys%5B%5D={work_area_dict[work]}"
+
+    keyword_search = ''
+    if keyword != '':
+        keyword_search = f"&keyw={keyword}"
+
+    url = f'https://www.cvbankas.lt/{work_area}{location}{keyword_search}'
     list_of_ads = []
     source = requests.get(url)
     soup = BeautifulSoup(source.content, 'html.parser')
@@ -54,6 +71,7 @@ def cvbankas_lt(city, keyword_search=''):
         }
         list_of_ads.append(card_items)
     return list_of_ads
+
 
 def cv_lt(city='kaunas', keyword_search=''):
     city = {
@@ -121,47 +139,5 @@ def cv_lt(city='kaunas', keyword_search=''):
     return list_of_ads
 
 
-def cv_online(city='kaunas', keyword_search=''):
-    city = {
-
-    }
-    remote_work = 'true'
-    list_of_ads = []
-    url = 'https://cvonline.lt/lt/search?limit=20&offset=0&categories%5B0%5D=INFORMATION_TECHNOLOGY&keywords%5B0%5D=python&towns%5B0%5D=501&fuzzy=true&suitableForRefugees=false&isHourlySalary=false&isRemoteWork=false&isQuickApply=false'
-    source = requests.get(url)
-    soup = BeautifulSoup(source.content, 'html.parser')
-    full_card_ul_item = soup.find('ul', {'data-gtm-id': 'search-results'})
-    full_card = full_card_ul_item.find_all('li')
-    for card in full_card:
-        try:
-            logo = f"https://cvonline.lt{card.find('div', class_='jsx-1401030249 vacancy-item__logo hide-mobile').find('img').get('src')}"
-        except AttributeError:
-            logo = 'No logo declared'
-        try:
-            employer = card.find('div',class_='jsx-1401030249 vacancy-item__body').find('a').text
-        except AttributeError:
-            employer = 'No employer declared'
-        position = card.find('div', class_='jsx-1401030249').find('span').text
-        try:
-            salary = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary').find(
-            'span', class_='jsx-1401030249 vacancy-item__salary-label').text.replace('€', '')
-        except AttributeError:
-            salary = 'No salary declared'
-        location = card.find('span', class_='jsx-1401030249 vacancy-item__locations').text.replace('—', '')
-        how_old_ad = card.find('div', class_='jsx-1401030249 vacancy-item__info-secondary'
-                               ).span.text.replace('Baigiasi', ' | Baigiasi')
-        ad_link = f"https://cvonline.lt{card.find('div', class_='jsx-1401030249').find('a').get('href')}"
-        card_items = {
-            'logo': logo,
-            'position': position,
-            'employer': employer,
-            'salary': f'{salary}€',
-            'salary_taxes': 'Neatskaičius mokesčių',
-            'location': location,
-            'how_old_ad': how_old_ad,
-            'ad_link': ad_link
-        }
-        list_of_ads.append(card_items)
-    return list_of_ads
-
-
+for i in cvbankas_lt(work=''):
+    print(i['position'])
