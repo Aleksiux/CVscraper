@@ -12,6 +12,7 @@ class CvForm(models.Model):
     city = models.CharField(max_length=50)
     how_old_ad = models.CharField(max_length=50)
     ad_link = models.CharField(max_length=3000)
+    work_area = models.CharField(max_length=50)
 
     def __str__(self):
         return f"Position:{self.position} | employer: {self.employer}"
