@@ -15,7 +15,7 @@ class CvForm(models.Model):
     work_area = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"Position:{self.position} | employer: {self.employer}"
+        return f"Position:{self.position} | employer: {self.employer} | city: {self.city}"
 
 
 class Profile(models.Model):

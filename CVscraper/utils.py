@@ -137,7 +137,3 @@ def cv_lt(city='kaunas', keyword_search=''):
         }
         list_of_ads.append(card_items)
     return list_of_ads
-
-
-for i in cvbankas_lt(work=''):
-    print(i['position'])

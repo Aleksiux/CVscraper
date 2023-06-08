@@ -28,16 +28,17 @@ filterPlaceholder:'Search Here..'
     <form method="POST" action="{% url 'cv' %}">
         {% csrf_token %}
     <div class="bs-multiselect">
-        <select id="mltislct" multiple="multiple">
-            <option value="kaunas"> Kaunas
+        <select id="mltislct" name="selected_city" multiple="multiple">
+            <option value="Kaune"> Kaunas
             </option>
-            <option value="vilnius"> Vilnius
+            <option value="Vilniuje"> Vilnius
             </option>
-            <option value="klaipeda"> Klaipeda
+            <option value="Klaipėdoje"> Klaipeda
             </option>
-            <option value="alytus"> Alytus</option>
-            <option value="birstonas"> Birstonas</option>
-            <option value="jonava"> Jonava</option>
+            <option value="Alytuje"> Alytus</option>
+            <option value="Birštone"> Birstonas</option>
+            <option value="Jonavoje"> Jonava</option>
+            <option value="Darbas namuose"> Darbas namuose</option>
         </select>
          <button type="submit">Submit</button>
     </div>
@@ -53,14 +54,14 @@ filterPlaceholder:'Search Here..'
             <th>City</th>
             <th>How old ad</th>
         </tr>
-        {% for data in cvbankas %}
+        {% for data in cvs %}
         <tr onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">
-            <td><img src="{{data.logo}}"></td>
+            <td><img src="{{data.logo_url}}"></td>
             <td>{{data.position}}</td>
             <td>{{data.employer}}</td>
             <td>{{data.salary}}</td>
             <td>{{data.salary_taxes}}</td>
-            <td>{{data.location}}</td>
+            <td>{{data.city}}</td>
             <td>{{data.how_old_ad}}</td>
         </tr>
         {% endfor %}
