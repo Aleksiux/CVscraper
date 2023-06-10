@@ -1,8 +1,13 @@
+import json
+
+from django.core import serializers
+from django.http import JsonResponse, HttpResponse
+
 from .utils import cvbankas_lt
 from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from .models import CvForm
+from .models import CvForm, Profile
 
 
 def index(request):
@@ -75,3 +80,50 @@ def scrape_data(request):
                             setattr(cv_form, field, value)
                     cv_form.save()
     return render(request, 'all_cvs.html')
+
+
+def add_to_like_section(request):
+    data = json.loads(request.body)
+    cv_id = data["cv_id"]
+    cv = CvForm.objects.get(cv_id=cv_id)
+
+    if request.user.is_authenticated:
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile.likes.add(cv)
+        profile.save()
+
+        like_section_data = {
+            "id": profile.profile_id,
+            "user": profile.user.username,
+            "likes": [cv.cv_id],
+        }
+
+        return JsonResponse(like_section_data, safe=False)
+
+
+def remove_from_like_section(request):
+    data = json.loads(request.body)
+    cv_id = data["cv_id"]
+    cv = CvForm.objects.get(cv_id=cv_id)
+
+    if request.user.is_authenticated:
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile.likes.remove(cv)
+        profile.save()
+
+        like_section_data = {
+            "id": profile.profile_id,
+            "user": profile.user.username,
+            "likes": [cv.cv_id],
+        }
+
+        return JsonResponse(like_section_data, safe=False)
+
+
+def liked_cvs(request):
+    profile = Profile.objects.get(user=request.user)
+    cv_forms = profile.likes.all()
+    context = {
+        'cvs': cv_forms
+    }
+    return render(request, 'liked_cvs.html', context=context)
