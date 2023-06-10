@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CvForm
+from .models import CvForm,Profile
 
 
 class CvFormAdmin(admin.ModelAdmin):
@@ -7,3 +7,4 @@ class CvFormAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CvForm)
+admin.site.register(Profile)

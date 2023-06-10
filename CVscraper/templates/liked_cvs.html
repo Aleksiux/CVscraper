@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<h1> Liked CVS </h1>
+
+
+<table class="table table-hover" id="cvTable">
+    <tr>
+        <th>Logo</th>
+        <th>Position</th>
+        <th>Employer</th>
+        <th>Salary</th>
+        <th>Salary taxes</th>
+        <th>City</th>
+        <th>How old ad</th>
+    </tr>
+    {% for data in cvs %}
+    <tr>
+        {% csrf_token %}
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer"><img src="{{data.logo_url}}"></td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.position}}</td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.employer}}</td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.salary}}</td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.salary_taxes}}</td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.city}}</td>
+        <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.how_old_ad}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

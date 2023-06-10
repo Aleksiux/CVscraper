@@ -21,4 +21,4 @@ class CvForm(models.Model):
 class Profile(models.Model):
     profile_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    likes = models.ForeignKey(CvForm, on_delete=models.DO_NOTHING, related_name='likes')
+    likes = models.ManyToManyField(CvForm, related_name='likes')

@@ -1,14 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+
 <h1> CV page </h1>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
-</script>
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css"/>
 
 <script>
 $(document).ready(function() {
@@ -27,24 +21,24 @@ filterPlaceholder:'Search Here..'
 <div class="card">
     <form method="POST" action="{% url 'cv' %}">
         {% csrf_token %}
-    <div class="bs-multiselect">
-        <select id="mltislct" name="selected_city" multiple="multiple">
-            <option value="Kaune"> Kaunas
-            </option>
-            <option value="Vilniuje"> Vilnius
-            </option>
-            <option value="Klaipėdoje"> Klaipeda
-            </option>
-            <option value="Alytuje"> Alytus</option>
-            <option value="Birštone"> Birstonas</option>
-            <option value="Jonavoje"> Jonava</option>
-            <option value="Darbas namuose"> Darbas namuose</option>
-        </select>
-         <button type="submit">Submit</button>
-    </div>
+        <div class="bs-multiselect">
+            <select id="mltislct" name="selected_city" multiple="multiple">
+                <option value="Kaune"> Kaunas
+                </option>
+                <option value="Vilniuje"> Vilnius
+                </option>
+                <option value="Klaipėdoje"> Klaipeda
+                </option>
+                <option value="Alytuje"> Alytus</option>
+                <option value="Birštone"> Birstonas</option>
+                <option value="Jonavoje"> Jonava</option>
+                <option value="Darbas namuose"> Darbas namuose</option>
+            </select>
+            <button type="submit">Submit</button>
+        </div>
     </form>
     <p class="p_counter">At the moment there is {{count}} advertisements</p>
-    <table class="table table-hover">
+    <table class="table table-hover" id="cvTable">
         <tr>
             <th>Logo</th>
             <th>Position</th>
@@ -53,19 +47,86 @@ filterPlaceholder:'Search Here..'
             <th>Salary taxes</th>
             <th>City</th>
             <th>How old ad</th>
+            <th></th>
         </tr>
         {% for data in cvs %}
-        <tr onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">
-            <td><img src="{{data.logo_url}}"></td>
-            <td>{{data.position}}</td>
-            <td>{{data.employer}}</td>
-            <td>{{data.salary}}</td>
-            <td>{{data.salary_taxes}}</td>
-            <td>{{data.city}}</td>
-            <td>{{data.how_old_ad}}</td>
+        <tr>
+            {% csrf_token %}
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer"><img src="{{data.logo_url}}"></td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.position}}</td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.employer}}</td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.salary}}</td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.salary_taxes}}</td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.city}}</td>
+            <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.how_old_ad}}</td>
+            <td>
+                    <div class="heart-like-button {% if data.likes.exists %}liked{% endif %}"
+                         data-cv-id="{{data.cv_id}}">
+                    </div>
+            </td>
         </tr>
         {% endfor %}
     </table>
+
 </div>
+<script>
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const buttons = document.querySelectorAll(".heart-like-button");
+buttons.forEach(button => {
+  button.addEventListener("click", (e) => {
+    if (button.classList.contains("liked")) {
+      button.classList.remove("liked");
+      removeFromLikeSection(e);
+    } else {
+      button.classList.add("liked");
+      addToLikeSection(e);
+    }
+  });
+});
+
+function addToLikeSection(e) {
+  let cv_id = e.currentTarget.dataset.cvId;
+  let url = "cv/add_to_like_section";
+
+  let data = { cv_id: cv_id };
+
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", 'X-CSRFToken': csrftoken },
+    body: JSON.stringify(data)
+  })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("like_section").innerHTML = data;
+      console.log(data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+function removeFromLikeSection(e) {
+  let cv_id = e.currentTarget.dataset.cvId;
+  let url = "cv/remove_from_like_section";
+
+  let data = { cv_id: cv_id };
+
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", 'X-CSRFToken': csrftoken },
+    body: JSON.stringify(data)
+  })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("like_section").innerHTML = data;
+      console.log(data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+
+</script>
 
 {% endblock %}
