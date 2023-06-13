@@ -1,7 +1,3 @@
-
-//----------------------------------------------Like on cvs------------------------------------------------------------
-
-
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 const buttons = document.querySelectorAll(".heart-like-button");
 buttons.forEach(button => {
@@ -17,7 +13,7 @@ buttons.forEach(button => {
 });
 
 function addToLikeSection(e) {
-  console.log('sas');
+  console.log("abs");
   let cv_id = e.currentTarget.dataset.cvId;
   let url = "cv/add_to_like_section";
   let data = { cv_id: cv_id };
@@ -27,7 +23,9 @@ function addToLikeSection(e) {
     headers: { "Content-Type": "application/json", 'X-CSRFToken': csrftoken },
     body: JSON.stringify(data)
   })
+  {
     .then(res => res.json())
+    }
     .catch(error => {
       console.log(error);
     });

@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<script type="text/javascript" src="{% static 'javascript/script.js' %}"></script>
-
 <h1> CV page </h1>
 
 <script>
+var selectedCity= '{{selected_cities}}';
+var cleanedSelectedCity = JSON.parse(selectedCity.replace(/&#x27;/g, '"'));
+
 $(document).ready(function() {
-$('#mltislct').multiselect({
+$('#citySelected').multiselect({
 buttonClass:'btn btn-warning',
 buttonWidth:'260px',
 enableFiltering: true,
@@ -15,15 +16,43 @@ enableCaseInsensitiveFiltering: true,
 includeSelectAllOption: false,
 filterPlaceholder:'Search Here..'
 });
+ $('#citySelected').multiselect('select', cleanedSelectedCity);
 });
 
 </script>
+<script>
+var selectedSpeciality = '{{selected_speciality}}';
+var cleanedSelectedSpeciality = JSON.parse(selectedSpeciality.replace(/&#x27;/g, '"'));
+$(document).ready(function() {
+    $('#jobtitle').multiselect({
+        buttonClass:'btn btn-warning',
+        buttonWidth:'260px',
+        enableFiltering: true,
+        enableCaseInsensitiveFiltering: true,
+        includeSelectAllOption: false,
+        filterPlaceholder:'Search Here..'
+    });
+     $('#jobtitle').multiselect('select', cleanedSelectedSpeciality);
+});
 
+</script>
 <div class="card">
     <form method="POST" action="{% url 'cv' %}">
         {% csrf_token %}
         <div class="bs-multiselect">
-            <select id="mltislct" name="selected_city" multiple="multiple">
+            <select id="jobtitle" name="selected_job" multiple="multiple">
+                <option value="it"> IT
+                </option>
+                <option value="administration"> Administration
+                </option>
+                <option value="production"> Production
+                </option>
+                <option value="medicine"> Medicine</option>
+                <option value="transport_driving"> Transport/Driving</option>
+            </select>
+
+
+            <select id="citySelected" name="selected_city" multiple="multiple">
                 <option value="Kaune"> Kaunas
                 </option>
                 <option value="Vilniuje"> Vilnius
@@ -35,7 +64,7 @@ filterPlaceholder:'Search Here..'
                 <option value="Jonavoje"> Jonava</option>
                 <option value="Darbas namuose"> Darbas namuose</option>
             </select>
-            <button type="submit">Submit</button>
+            <button type="submit" onclick="submitForm()">Submit</button>
         </div>
     </form>
     <p class="p_counter">At the moment there is {{count}} advertisements</p>
@@ -61,17 +90,15 @@ filterPlaceholder:'Search Here..'
             <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.city}}</td>
             <td onclick="location.href='{{data.ad_link}}'" style="cursor: pointer">{{data.how_old_ad}}</td>
             <td>
-                    <div class="heart-like-button {% if data.likes.exists %}liked{% endif %}"
-                         data-cv-id="{{data.cv_id}}">
-                    </div>
+                <div class="heart-like-button {% if data.likes.exists %}liked{% endif %}"
+                     data-cv-id="{{data.cv_id}}">
+                </div>
             </td>
         </tr>
         {% endfor %}
     </table>
 
 </div>
-<script>
 
-</script>
-
+<script type="text/javascript" src="{% static 'javascript/scripts.js' %}"></script>
 {% endblock %}

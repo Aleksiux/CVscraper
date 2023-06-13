@@ -1,6 +1,7 @@
 import json
 
 from django.core import serializers
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 
 from .utils import cvbankas_lt
@@ -8,6 +9,24 @@ from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import CvForm, Profile
+
+WORK_CATEGORIES = {
+    'it': 'IT',
+    'administration': 'Administration',
+    'production': 'Production',
+    'medicine': 'Medicine',
+    'transport_driving': 'Transport/Driving'
+}
+
+CITY = {
+    'Kaune': 'Kaunas',
+    'Vilniuje': 'Vilnius',
+    'Klaipėdoje': 'Klaipeda',
+    'Alytuje': 'Alytus',
+    'Birštone': 'Birstonas',
+    'Jonavoje': 'Jonava',
+    'Darbas namuose': 'Darbas namuose',
+}
 
 
 def index(request):
@@ -20,9 +39,16 @@ def all_cvs(request):
     cvs = CvForm.objects.all()
     if request.method == "POST":
         selected_cities = request.POST.getlist('selected_city')
-        search_results = CvForm.objects.filter(city__in=selected_cities)
+        selected_speciality = request.POST.getlist('selected_job')
+        if not selected_cities:
+            selected_cities = list(CITY.keys())
+        if not selected_speciality:
+            selected_speciality = list(WORK_CATEGORIES.keys())
+        search_results = CvForm.objects.filter(Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
         context = {
-            'cvs': search_results
+            'cvs': search_results,
+            'selected_speciality': selected_speciality,
+            'selected_cities': selected_cities,
         }
         return render(request, "all_cvs.html", context=context)
     context = {
@@ -39,14 +65,7 @@ def is_admin(user):
 @user_passes_test(is_admin)  # Restricts access to admin users
 def scrape_data(request):
     if request.method == "POST":
-        work_categories = {
-            'it': 'IT',
-            'administration': 'Administration',
-            'production': 'Production',
-            'medicine': 'Medicine',
-            'transport_driving': 'Transport/Driving'
-        }
-        for work_key, work_value in work_categories.items():
+        for work_key, work_value in WORK_CATEGORIES.items():
             for work_data in cvbankas_lt(work=work_key):
                 cv_form_data = {
                     'logo_url': work_data['logo'],
