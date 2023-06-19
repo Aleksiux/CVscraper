@@ -18,7 +18,7 @@ buttons.forEach(button => {
 
 function addToLikeSection(e) {
   let cv_id = e.currentTarget.dataset.cvId;
-  let url = "cv/add_to_like_section";
+  let url = "add_to_like_section";
   let data = { cv_id: cv_id };
 
   fetch(url, {
@@ -34,7 +34,7 @@ function addToLikeSection(e) {
 
 function removeFromLikeSection(e) {
   let cv_id = e.currentTarget.dataset.cvId;
-  let url = "cv/remove_from_like_section";
+  let url = "remove_from_like_section";
 
   let data = { cv_id: cv_id };
 
