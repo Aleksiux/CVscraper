@@ -17,7 +17,6 @@ buttons.forEach(button => {
 });
 
 function addToLikeSection(e) {
-  console.log('sas');
   let cv_id = e.currentTarget.dataset.cvId;
   let url = "cv/add_to_like_section";
   let data = { cv_id: cv_id };

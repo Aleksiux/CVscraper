@@ -29,7 +29,6 @@ def cvbankas_lt(city='', keyword='', work=''):
     keyword_search = ''
     if keyword != '':
         keyword_search = f"&keyw={keyword}"
-
     url = f'https://www.cvbankas.lt/{work_area}{location}{keyword_search}'
     list_of_ads = []
     source = requests.get(url)
@@ -124,6 +123,7 @@ def cv_lt(city='kaunas', keyword_search=''):
             ad_link = f"https://www.cv.lt{card.get('href')}"
         except AttributeError:
             ad_link = 'No link declared'
+
 
         card_items = {
             'logo': logo,

@@ -1,8 +1,7 @@
 import json
 
-from django.core import serializers
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 
 from .utils import cvbankas_lt
 from django.contrib.admin.views.decorators import user_passes_test
@@ -40,19 +39,29 @@ def all_cvs(request):
     if request.method == "POST":
         selected_cities = request.POST.getlist('selected_city')
         selected_speciality = request.POST.getlist('selected_job')
+        search_input = request.POST.get('input_search')
         if not selected_cities:
             selected_cities = list(CITY.keys())
         if not selected_speciality:
             selected_speciality = list(WORK_CATEGORIES.keys())
-        search_results = CvForm.objects.filter(Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
+        if search_input is None:
+            search_input = ''
+        search_results = CvForm.objects.filter(
+            Q(position__icontains=search_input) & Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
         context = {
             'cvs': search_results,
             'selected_speciality': selected_speciality,
             'selected_cities': selected_cities,
         }
         return render(request, "all_cvs.html", context=context)
+    selected_cities = list(CITY.keys())
+    selected_speciality = list(WORK_CATEGORIES.keys())
     context = {
         'cvs': cvs,
+        'selected_speciality': selected_speciality,
+        'selected_cities': selected_cities,
+        'user': request.user,
+
     }
     return render(request, "all_cvs.html", context=context)
 
@@ -94,20 +103,23 @@ def scrape_data(request):
                     )
                     cv_form.save()
                 else:
+                    print('-'*100)
                     for field, value in cv_form_data.items():
+                        print(f"{getattr(cv_form, field)} value: {value}")
                         if getattr(cv_form, field) != value:
+                            print(field, value)
                             setattr(cv_form, field, value)
                     cv_form.save()
     return render(request, 'all_cvs.html')
 
 
+@login_required
 def add_to_like_section(request):
     data = json.loads(request.body)
     cv_id = data["cv_id"]
     cv = CvForm.objects.get(cv_id=cv_id)
-
     if request.user.is_authenticated:
-        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile = Profile.objects.get_or_create(user=request.user)
         profile.likes.add(cv)
         profile.save()
 
@@ -120,13 +132,14 @@ def add_to_like_section(request):
         return JsonResponse(like_section_data, safe=False)
 
 
+@login_required
 def remove_from_like_section(request):
     data = json.loads(request.body)
     cv_id = data["cv_id"]
     cv = CvForm.objects.get(cv_id=cv_id)
 
     if request.user.is_authenticated:
-        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile = Profile.objects.get_or_create(user=request.user)
         profile.likes.remove(cv)
         profile.save()
 
