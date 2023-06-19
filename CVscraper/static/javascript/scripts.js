@@ -19,7 +19,6 @@ buttons.forEach(button => {
 function addToLikeSection(e) {
   let cv_id = e.currentTarget.dataset.cvId;
   let url = "cv/add_to_like_section";
-
   let data = { cv_id: cv_id };
 
   fetch(url, {
@@ -28,10 +27,6 @@ function addToLikeSection(e) {
     body: JSON.stringify(data)
   })
     .then(res => res.json())
-    .then(data => {
-      document.getElementById("like_section").innerHTML = data;
-      console.log(data);
-    })
     .catch(error => {
       console.log(error);
     });
@@ -49,10 +44,6 @@ function removeFromLikeSection(e) {
     body: JSON.stringify(data)
   })
     .then(res => res.json())
-    .then(data => {
-      document.getElementById("like_section").innerHTML = data;
-      console.log(data);
-    })
     .catch(error => {
       console.log(error);
     });
