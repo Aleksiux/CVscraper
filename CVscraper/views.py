@@ -2,12 +2,16 @@ import json
 
 from django.db.models import Q
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import csrf_protect
 from .utils import cvbankas_lt
 from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import CvForm, Profile
+from django.contrib import messages
+from django.contrib.auth.forms import User
+
+from .forms import UserUpdateForm, ProfileUpdateForm
 
 WORK_CATEGORIES = {
     'it': 'IT',
@@ -34,6 +38,62 @@ def index(request):
     return render(request, "index.html", context)
 
 
+@csrf_protect
+def register(request):
+    if request.method == "POST":
+        # taking all values from registration form
+        username = request.POST['username']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        password = request.POST['password']
+        password2 = request.POST['password2']
+
+        # checking if passwords matches
+        if password != password2:
+            messages.error(request, 'Password does not match!')
+            return redirect('register')
+
+        # checking if username is not taken
+        if User.objects.filter(username=username).exists():
+            messages.error(request, f'Username {username} is taken! Choose another one')
+            return redirect('register')
+
+        # checking if email is not taken
+        if User.objects.filter(email=email).exists():
+            messages.error(request, f'User with {email} is already registered!')
+            return redirect('register')
+
+        # if everything is good, create new user.
+        User.objects.create_user(username=username, first_name=first_name, last_name=last_name, email=email,
+                                 password=password)
+        messages.info(request, f'User with username {username} registered!')
+        return redirect('login')
+    return render(request, 'registration/register.html')
+
+
+@login_required
+def profile(request):
+    if request.method == "POST":
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, f"Profile updated")
+            return redirect('profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+    }
+    return render(request, 'profile.html', context)
+
+
+@login_required
 def all_cvs(request):
     cvs = CvForm.objects.all()
     if request.method == "POST":
@@ -48,7 +108,11 @@ def all_cvs(request):
             search_input = ''
         search_results = CvForm.objects.filter(
             Q(position__icontains=search_input) & Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
+
+        user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
         context = {
+            'user_profile': list(user_profile),
+            'user': request.user,
             'cvs': search_results,
             'selected_speciality': selected_speciality,
             'selected_cities': selected_cities,
@@ -56,7 +120,9 @@ def all_cvs(request):
         return render(request, "all_cvs.html", context=context)
     selected_cities = list(CITY.keys())
     selected_speciality = list(WORK_CATEGORIES.keys())
+    user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
     context = {
+        'user_profile': user_profile,
         'cvs': cvs,
         'selected_speciality': selected_speciality,
         'selected_cities': selected_cities,
@@ -103,7 +169,7 @@ def scrape_data(request):
                     )
                     cv_form.save()
                 else:
-                    print('-'*100)
+                    print('-' * 100)
                     for field, value in cv_form_data.items():
                         print(f"{getattr(cv_form, field)} value: {value}")
                         if getattr(cv_form, field) != value:
@@ -119,7 +185,7 @@ def add_to_like_section(request):
     cv_id = data["cv_id"]
     cv = CvForm.objects.get(cv_id=cv_id)
     if request.user.is_authenticated:
-        profile = Profile.objects.get_or_create(user=request.user)
+        profile, created = Profile.objects.get_or_create(user=request.user)
         profile.likes.add(cv)
         profile.save()
 
@@ -139,7 +205,7 @@ def remove_from_like_section(request):
     cv = CvForm.objects.get(cv_id=cv_id)
 
     if request.user.is_authenticated:
-        profile = Profile.objects.get_or_create(user=request.user)
+        profile, created = Profile.objects.get_or_create(user=request.user)
         profile.likes.remove(cv)
         profile.save()
 
