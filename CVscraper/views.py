@@ -8,7 +8,7 @@ from django.contrib.admin.views.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import CvForm, Profile
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth.forms import User
 
 from .forms import UserUpdateForm, ProfileUpdateForm
@@ -36,6 +36,11 @@ def index(request):
     context = {
     }
     return render(request, "index.html", context)
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect(request, 'login')
 
 
 @csrf_protect
@@ -108,7 +113,6 @@ def all_cvs(request):
             search_input = ''
         search_results = CvForm.objects.filter(
             Q(position__icontains=search_input) & Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
-
         user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
         context = {
             'user_profile': list(user_profile),
@@ -169,16 +173,11 @@ def scrape_data(request):
                     )
                     cv_form.save()
                 else:
-                    print('-' * 100)
                     for field, value in cv_form_data.items():
-                        print(f"{getattr(cv_form, field)} value: {value}")
                         if getattr(cv_form, field) != value:
-                            print(field, value)
                             setattr(cv_form, field, value)
                     cv_form.save()
     return render(request, 'all_cvs.html')
-
-
 @login_required
 def add_to_like_section(request):
     data = json.loads(request.body)

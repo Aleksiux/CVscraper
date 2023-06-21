@@ -65,7 +65,7 @@
 </nav>
             {% if user.is_authenticated %}
             Welcome back {{ user.get_username }}<br>
-            <a href="{% url 'logout' %}?next=/cv">Logout</a>
+            <a href="{% url 'logout' %}">Logout</a>
                     {% else %}
                     <a href="{% url 'login' %}">Login</a>
                     {% if not user.is_authenticated %}
