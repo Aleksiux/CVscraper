@@ -118,6 +118,7 @@ def all_cvs(request):
             'user_profile': list(user_profile),
             'user': request.user,
             'cvs': search_results,
+            'count': cvs.count(),
             'selected_speciality': selected_speciality,
             'selected_cities': selected_cities,
         }
@@ -125,9 +126,11 @@ def all_cvs(request):
     selected_cities = list(CITY.keys())
     selected_speciality = list(WORK_CATEGORIES.keys())
     user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
+
     context = {
         'user_profile': user_profile,
         'cvs': cvs,
+        'count': cvs.count(),
         'selected_speciality': selected_speciality,
         'selected_cities': selected_cities,
         'user': request.user,
@@ -177,7 +180,20 @@ def scrape_data(request):
                         if getattr(cv_form, field) != value:
                             setattr(cv_form, field, value)
                     cv_form.save()
-    return render(request, 'all_cvs.html')
+    cvs = CvForm.objects.all()
+    selected_cities = list(CITY.keys())
+    selected_speciality = list(WORK_CATEGORIES.keys())
+    user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
+    context = {
+        'user_profile': user_profile,
+        'cvs': cvs,
+        'count': cvs.count(),
+        'selected_speciality': selected_speciality,
+        'selected_cities': selected_cities,
+        'user': request.user,
+
+    }
+    return render(request, 'all_cvs.html', context=context)
 @login_required
 def add_to_like_section(request):
     data = json.loads(request.body)

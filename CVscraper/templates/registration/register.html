@@ -36,9 +36,9 @@
                 <label for="password2">Repeat password</label>
                 <input name="password2" type="password" class="form-control" id="password2" aria-describedby="pwd2Help">
             </div>
-            <button type="submit" class="btn btn-primary register-button">Register</button>
+                If you have already account -> <a href="{% url 'login' %}">Login</a>
         </form>
-        <p>If your registered user, <a href="{% url 'login' %}"><strong>login.</strong></a></p>
     </div>
+
 
 {% endblock %}

@@ -18,14 +18,16 @@ justify-content: center;
 }
 .p_counter{
     text-align: center;
-    margin-left: -50vh;
+    margin-left: 30vh;
 }
 
 .bs-multiselect {
     text-align: center;
-    margin-left: 15vh;
+    margin-left: 48vh;
 
 }
+
+
 
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
     padding: 30px;

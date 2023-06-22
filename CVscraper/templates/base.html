@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     {% block title %}<title>CV scraper</title>{% endblock %}
     <meta charset="utf-8">
@@ -35,50 +35,29 @@
                           clip-rule="evenodd"/>
                 </svg>
                 {{ user.get_username }}</a>
-            {%else%}
-            {%endif%}
+      <a href="{% url 'logout' %}">Logout</a>
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-
-
-    <a class="navbar-brand" href="{% url 'cv' %}">All CV</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'cv' %}">Cv</a>
-        </li>
-          {% if user.is_authenticated %}
-        <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="{% url 'liked_cvs' %}">Liked CVS</a>
-        </li>
-          {%endif%}
-
-      </ul>
-      {% endblock %}
-            </div>
-  </div>
-
-</nav>
-            {% if user.is_authenticated %}
-            Welcome back {{ user.get_username }}<br>
-            <a href="{% url 'logout' %}">Logout</a>
-                    {% else %}
-                    <a href="{% url 'login' %}">Login</a>
-                    {% if not user.is_authenticated %}
-                    <a href="{% url 'register' %}">Register</a>
-                    {% else %}
-                    {% endif %}
-     {% endif %}
-        {% if request.user.is_superuser %}
-    <form method="POST" action="{% url 'scrape_data' %}">
+<ul class="nav justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'cv' %}">All CV</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'cv' %}">Cv</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'liked_cvs' %}">Liked CVS</a>
+  </li>
+     {% if request.user.is_superuser %}
+  <li class="nav-item">
+      <form method="POST" action="{% url 'scrape_data' %}">
         {% csrf_token %}
-            <button type="submit">Scrape for new data</button>
-    </form>
-    {% endif %}
+    <button class="nav-link disabled" type="submit" href="{% url 'scrape_data' %}" tabindex="-1" aria-disabled="true">Scrape data</button>
+  </form>
+  </li>
+    {%endif%}
+    {%endif%}
+</ul>
+      {% endblock %}
 <div class="col-sm-10 ">{% block content %}{% endblock %}</div>
 {% if messages %}
     {% for message in messages %}
