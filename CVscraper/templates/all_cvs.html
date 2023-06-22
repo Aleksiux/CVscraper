@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<h1> CV page </h1>
-
+<!--<script type="text/javascript" src="{% static 'javascript/search_bars.js' %}"></script>-->
 <script>
-var selectedCity= '{{selected_cities}}';
-var cleanedSelectedCity = JSON.parse(selectedCity.replace(/&#x27;/g, '"'));
 
+    var selectedCity= '{{selected_cities}}';
+if(selectedCity) {
+    var cleanedSelectedCity = JSON.parse(selectedCity.replace(/&#x27;/g, '"'));
+}
 $(document).ready(function() {
 $('#citySelected').multiselect({
 buttonClass:'btn btn-warning',
@@ -19,10 +20,12 @@ filterPlaceholder:'Search Here..'
  $('#citySelected').multiselect('select', cleanedSelectedCity);
 });
 
-</script>
-<script>
+
+
 var selectedSpeciality = '{{selected_speciality}}';
-var cleanedSelectedSpeciality = JSON.parse(selectedSpeciality.replace(/&#x27;/g, '"'));
+if(selectedSpeciality) {
+    var cleanedSelectedSpeciality = JSON.parse(selectedSpeciality.replace(/&#x27;/g, '"'));
+}
 $(document).ready(function() {
     $('#jobtitle').multiselect({
         buttonClass:'btn btn-warning',
@@ -37,6 +40,7 @@ $(document).ready(function() {
 
 </script>
 <div class="card">
+        <p class="p_counter">At the moment there is <b style="color:red;">{{count}} </b> advertisements</p>
     <form method="POST" action="{% url 'cv' %}">
         {% csrf_token %}
         <div class="bs-multiselect">
@@ -50,8 +54,6 @@ $(document).ready(function() {
                 <option value="medicine"> Medicine</option>
                 <option value="transport_driving"> Transport/Driving</option>
             </select>
-
-
             <select id="citySelected" name="selected_city" multiple="multiple">
                 <option value="Kaune"> Kaunas
                 </option>
@@ -67,8 +69,8 @@ $(document).ready(function() {
             <input name="input_search" type="text" placeholder="Search..">
             <button type="submit" onclick="submitForm()">Submit</button>
         </div>
+        <br>
     </form>
-    <p class="p_counter">At the moment there is {{count}} advertisements</p>
     <table class="table table-hover" id="cvTable">
         <tr>
             <th>Logo</th>
