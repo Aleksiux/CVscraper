@@ -1,7 +1,8 @@
 import json
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.http import JsonResponse
+
 from django.views.decorators.csrf import csrf_protect
 from .utils import cvbankas_lt
 from django.contrib.admin.views.decorators import user_passes_test
@@ -10,6 +11,7 @@ from django.shortcuts import render, redirect
 from .models import CvForm, Profile
 from django.contrib import messages, auth
 from django.contrib.auth.forms import User
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .forms import UserUpdateForm, ProfileUpdateForm
 
@@ -101,6 +103,9 @@ def profile(request):
 @login_required
 def all_cvs(request):
     cvs = CvForm.objects.all()
+    paginator = Paginator(CvForm.objects.all(), 100)
+    page_number = request.GET.get('page')
+    paged_cvs = paginator.get_page(page_number)
     if request.method == "POST":
         selected_cities = request.POST.getlist('selected_city')
         selected_speciality = request.POST.getlist('selected_job')
@@ -114,10 +119,13 @@ def all_cvs(request):
         search_results = CvForm.objects.filter(
             Q(position__icontains=search_input) & Q(city__in=selected_cities) & Q(work_area__in=selected_speciality))
         user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
+        paginator = Paginator(search_results, 100)
+        page_number = request.GET.get('page')
+        paged_cvs = paginator.get_page(page_number)
         context = {
             'user_profile': list(user_profile),
             'user': request.user,
-            'cvs': search_results,
+            'cvs': paged_cvs,
             'count': cvs.count(),
             'selected_speciality': selected_speciality,
             'selected_cities': selected_cities,
@@ -126,10 +134,9 @@ def all_cvs(request):
     selected_cities = list(CITY.keys())
     selected_speciality = list(WORK_CATEGORIES.keys())
     user_profile = Profile.objects.filter(user=request.user).values_list('likes', flat=True)
-
     context = {
         'user_profile': user_profile,
-        'cvs': cvs,
+        'cvs': paged_cvs,
         'count': cvs.count(),
         'selected_speciality': selected_speciality,
         'selected_cities': selected_cities,
@@ -137,6 +144,23 @@ def all_cvs(request):
 
     }
     return render(request, "all_cvs.html", context=context)
+
+
+def list_cvs(request, page=1):
+    cvs = CvForm.objects.all()
+    paginator = Paginator(cvs, 20)
+    page_number = request.GET.get('page', 1)
+    try:
+        cvs = paginator.page(page)
+    except EmptyPage:
+        cvs = paginator.page(paginator.num_pages)
+
+    context = {
+        'cvs': cvs,
+        'page': page_number,
+
+    }
+    return render(request, 'cvs_all.html', context=context)
 
 
 def is_admin(user):
@@ -194,6 +218,8 @@ def scrape_data(request):
 
     }
     return render(request, 'all_cvs.html', context=context)
+
+
 @login_required
 def add_to_like_section(request):
     data = json.loads(request.body)
@@ -234,9 +260,13 @@ def remove_from_like_section(request):
 
 
 def liked_cvs(request):
-    profile = Profile.objects.get(user=request.user)
-    cv_forms = profile.likes.all()
-    context = {
-        'cvs': cv_forms
-    }
-    return render(request, 'liked_cvs.html', context=context)
+    try:
+        profile = Profile.objects.get(user=request.user)
+        cv_forms = profile.likes.all()
+        context = {
+            'cvs': cv_forms
+        }
+        return render(request, 'liked_cvs.html', context=context)
+    except ObjectDoesNotExist:
+        messages.warning(request, f"You do not have any liked CV")
+        return render(request, 'all_cvs.html')

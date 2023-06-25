@@ -19,10 +19,15 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css"/>
 
     {% load static %}
-
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'info' %}success{% elif message.tags == 'warning' %}warning{% endif %} fade in text-center"
+         role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
 </head>
 <body>
      {% block sidebar %}
@@ -59,13 +64,5 @@
 </ul>
       {% endblock %}
 <div class="col-sm-10 ">{% block content %}{% endblock %}</div>
-{% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'info' %}success{% endif %}"
-         role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
 </body>
 </html>

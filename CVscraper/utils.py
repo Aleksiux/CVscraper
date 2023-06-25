@@ -1,5 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
+import yagmail
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 PAGE_RANGE = range(1, 100)
 
