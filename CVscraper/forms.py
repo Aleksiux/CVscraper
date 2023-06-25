@@ -15,3 +15,7 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['photo']
+
+
+class ChangePasswordForm(forms.Form):
+    email = forms.EmailField(label='Email')
